@@ -1,3 +1,4 @@
+
 #ifndef Factures_H
 #define Factures_H
 #include <QString>

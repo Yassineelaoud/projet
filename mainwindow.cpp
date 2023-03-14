@@ -1,91 +1,146 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "Factures.h"
-
-#include <QDialog>
-#include <QTableView>
-#include <QSortFilterProxyModel>
-#include "connexion.h"
-QSortFilterProxyModel *proxy = new QSortFilterProxyModel();
+#include <QMessageBox>
+#include<QSqlQuery>
+#include<QString>
+#include <QIntValidator>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    Connexion conn ;
-    conn.ouvrirConnexion();
-
-    Factures f;
     ui->setupUi(this);
-    proxy->setSourceModel(f.afficher());
-    ui->tabFactures->setModel(proxy);
+    ui->le_NumF_supp->setValidator( new QIntValidator(0, 99999999, this));
+    ui->le_NumF_2->setValidator( new QIntValidator(100, 99999999, this));//controle de saisie
+    ui->le_Prix_2->setValidator( new QIntValidator(0, 99, this));
+    ui->le_Code_2->setValidator( new QIntValidator(0, 99, this));
+
+    ui->le_mat_2->setValidator(new QRegExpValidator(QRegExp("[a-z]*")));
+    ui->le_DateE_2->setValidator(new QRegExpValidator(QRegExp("[a-z]*")));
+    ui->le_NumF->setValidator( new QIntValidator(100, 99999999, this));//controle de saisie
+    ui->le_Prix->setValidator( new QIntValidator(0, 99, this));
+    ui->le_mat->setValidator(new QRegExpValidator(QRegExp("[a-z]*")));
+    ui->le_Code->setValidator( new QIntValidator(0, 99, this));
+
+    ui->le_DateE->setValidator(new QRegExpValidator(QRegExp("[a-z]*")));
+    ui->tab_factures->setModel(e.afficher());
+
 }
-int main(int argc, char* argv[]) {
 
-    QApplication app(argc, argv);
-
-    MainWindow d;
-    d.show();
-    return app.exec();
-
-}
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-void MainWindow::on_Ajouter_clicked()
+bool MainWindow::controlesaisi()
 {
-    int numF=ui->numf->value();
-    QString mat=ui->mat->text();
-    int code=ui->code->value();
-    QString date=ui->date->text();
-    int prix=ui->prix->value();
-    Factures ps(numF,mat,code,date,prix);
-    QMessageBox msg;
-    if(ps.ajouter())
-    {
-        msg.setText("ajout avec succés");
-        //show_tables(p.afficherProduit(),ui->tabProduits);
-        ui->numf->clear();
-        ui->mat->clear();
-        ui->code->clear();
-        ui->date->clear();
-        ui->prix->clear();
-    }
-    else
-    {
-        msg.setText("echec lors de l'ajout");
-    }
-    msg.exec();
+    QRegExp mailRex("\\b[A-Z,a-z0-9._%+-]+@[A-Z,a-z0-9.-]+\\.[A-Z,a-z]{2,4}\\b");
+    mailRex.setCaseSensitivity(Qt::CaseInsensitive);
+    mailRex.setPatternSyntax(QRegExp::RegExp);
+
+
+    if (
+
+                !(ui->le_mat->text().contains(QRegExp("^[A-Za-z]+$"))) ||
+
+                !(ui->le_DateE->text().contains(QRegExp("^[A-Za-z]+$"))) ||
+
+
+                ui->le_NumF->text().isEmpty() ||
+
+                ui->le_NumF->text().toInt() == 0 ||
+
+                !(mailRex.exactMatch(ui->le_Code->text())))
+
+
+
+            return 0;
+
+        else
+
+            return 1;
 
 
 }
 
-void MainWindow::on_Modifier_clicked()
+void MainWindow::on_ajouter_clicked()
 {
-    int numF=ui->numf->value();
-    QString mat=ui->mat->text();
-    int code=ui->code->value();
-    QString date=ui->date->text();
-    int prix=ui->prix->value();
-    Factures ps(numF,mat,code,date,prix);
-    QMessageBox msg;
-    if(ps.modifier())
-    {
-        msg.setText("modification avec succés");
-        ui->numf->clear();
-        ui->mat->clear();
-        ui->code->clear();
-        ui->date->clear();
-        ui->prix->clear();
-    }
-    else
-    {
-        msg.setText("echec lors de la modification");
-    }
-    msg.exec();
+    int NumF=ui->le_NumF->text().toInt();
+    QString mat=ui->le_mat->text();
+    QString DateE=ui->le_DateE->text();
+    int code=ui->le_Code->text().toInt();
+    int Prix=ui->le_Prix->text().toInt();
+
+    Factures e (NumF,mat,code,DateE,Prix);
+     bool test=e.ajouter();
+   if (test)
+    test=e.ajouter();
+       if(test)
+       {
+           ui->tab_factures->setModel(e.afficher());
+           QMessageBox::information(nullptr, QObject::tr("database is open"),
+                       QObject::tr("ajout effectué.\n"
+                                   "Click Cancel to exit."), QMessageBox::Cancel);
+
+   }
+      else
+           QMessageBox::critical(nullptr, QObject::tr("database is not open"),
+                       QObject::tr("ajout non effectué.\n"
+                                   "Click Cancel to exit."), QMessageBox::Cancel);
+
+       ui->le_NumF->clear();
+       ui->le_mat->clear();
+       ui->le_DateE->clear();
+       ui->le_Code->clear();
+       ui->le_Prix->clear();
 }
-void MainWindow::on_Supprimer_clicked()
+
+
+void MainWindow::on_modifier_clicked()
 {
+    int NumF=ui->le_NumF_2->text().toInt();
+        QString mat=ui->le_mat_2->text();
+        QString DateE=ui->le_DateE_2->text();
+        int code=ui->le_Code_2->text().toInt();
+        int Prix=ui->le_Prix_2->text().toInt();
+        Factures e (NumF,mat,code,DateE,Prix);
+        bool test=e.modifier();
+        if(test){
+            ui->tab_factures->setModel(e.afficher());
+            QMessageBox::information(nullptr,"modification activite","activite modifie avec succés");
+        }
+        else
+                QMessageBox::warning(nullptr,"Error","activite non modifie");
+
+
+         ui->le_NumF->clear();
+         ui->le_mat->clear();
+         ui->le_DateE->clear();
+         ui->le_Code->clear();
+         ui->le_Prix->clear();
+
+}
+
+void MainWindow::on_supprimer_clicked()
+{
+    Factures e1;
+    e1.setNumFacture(ui->le_NumF_supp->text().toInt());
+        //bool test=false;
+        //bool trouver=e1.verification(e1.getNumF());
+       // if (trouver)
+             bool test=e.supprimer(e1.getNumFacture());
+        QMessageBox msgBox;
+
+        if (test)
+        {
+
+          msgBox.setText("Supprimer avec succes.");
+          ui->tab_factures->setModel(e.afficher());
+
+        }
+
+        else
+           msgBox.setText("Echec de suppression");
+           msgBox.exec();
+
+           ui->le_NumF_supp->clear();
 }

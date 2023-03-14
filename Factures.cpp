@@ -59,5 +59,3 @@ bool Factures::modifier()
           query.bindValue(":PRIXE", Prix);
           return query.exec();
 }
-
-
