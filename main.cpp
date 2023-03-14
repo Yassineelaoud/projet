@@ -1,52 +1,26 @@
-//#include "mainwindow.h"
-//#include "connexion.h"
-//#include <QMessageBox>
-//#include <QTextToSpeech>
-//#include <QApplication>
-//#include <QFile>
+#include "mainwindow.h"
+#include <QApplication>
+#include <QMessageBox>
+#include "connection.h"
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    MainWindow w;
+    Connection c;
+    bool test=c.createconnect();
+    if(test)
+    {w.show();
+        QMessageBox::information(nullptr, QObject::tr("database is open"),
+                    QObject::tr("connection successful.\n"
+                                "Click Cancel to exit."), QMessageBox::Cancel);
+
+}
+    else
+        QMessageBox::critical(nullptr, QObject::tr("database is not open"),
+                    QObject::tr("connection failed.\n"
+                                "Click Cancel to exit."), QMessageBox::Cancel);
 
 
-//#include <QApplication>
 
-//int main(int argc, char *argv[])
-//{
-//    QApplication a(argc, argv);
-
-//        Connexion c;
-//        bool test=c.ouvrirConnexion();
-//        MainWindow w;
-//        QFile File("C:\\Users\\Nabil\\Downloads\\projet\\Toolery.qss");
-//                File.open(QFile::ReadOnly);
-//                QString StyleSheet =QLatin1String(File.readAll());
-//                //setup stylesheet
-//                a.setStyleSheet(StyleSheet);
-//        //open qss file
-//        /*QFile File(":/Combinear.qss");
-//        File.open(QFile::ReadOnly);
-//        QString StyleSheet =QLatin1String(File.readAll());
-//        //setup stylesheet
-//        a.setStyleSheet(StyleSheet);*/
-//        QTextToSpeech * m_speech =new QTextToSpeech();
-//        if(test)
-//        {
-//            w.show();
-
-//           m_speech->say("database is opened successfully");
-//            QMessageBox::information(nullptr, QObject::tr("database is open"),
-//                        QObject::tr("connection successful.\n"
-//                                    "Click ok to exit."), QMessageBox::Close);
-
-
-//        }
-//        else
-//        {
-//            QMessageBox::critical(nullptr, QObject::tr("database is not open"),
-//                        QObject::tr("connection failed.\n"
-//                                    "Click ok to exit."), QMessageBox::Close);
-//            m_speech->say("database is opened successfully");
-
-//        }
-
-
-//    return a.exec();
-//}
+    return a.exec();
+}
